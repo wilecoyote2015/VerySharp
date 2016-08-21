@@ -120,8 +120,8 @@
        inkscape:label="Drop Shadow"
        id="filter5680">
       <feFlood
-         flood-opacity="0.498039"
-         flood-color="rgb(188,188,188)"
+         flood-opacity="0.12"
+         flood-color="rgb(0,0,0)"
          result="flood"
          id="feFlood5682" />
       <feComposite
@@ -153,11 +153,11 @@
      pagecolor="#ffffff"
      bordercolor="#666666"
      borderopacity="1.0"
-     inkscape:pageopacity="0.0"
+     inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="3.959798"
-     inkscape:cx="75.53799"
-     inkscape:cy="74.213071"
+     inkscape:zoom="2.8"
+     inkscape:cx="4.8047417"
+     inkscape:cy="65.412547"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
