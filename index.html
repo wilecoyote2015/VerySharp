@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>VerySharp by wilecoyote2015</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">VerySharp</h1>
+      <h2 class="project-tagline">Combine handheld shot photos to a higher resolution image</h2>
+      <a href="https://github.com/wilecoyote2015/VerySharp" class="btn">View on GitHub</a>
+      <a href="https://github.com/wilecoyote2015/VerySharp/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/wilecoyote2015/VerySharp/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="introduction" class="anchor" href="#introduction" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Introduction</h1>
+
+<p>VerySharp is a program that uses a series of photographs to calculate a higher resolution image with enhanced detail rendition. It stands in analogy to the principle of the pixel shift feature that is offered by some modern digital cameras: Those cameras capture multiple images with a subpixel-level sensor shift and then use that data to calculate an image whose resolution exceeds the sensor's physical resolution. For example, the Olympus E-M5 II, which features a 16 megapixel sensor, is able to create a 40 megapixel image using pixel shift.</p>
+
+<p>The goal of VerySharp is to provide a way to create high resolution images with cameras that don't feature pixel shift capabilities.
+VerySharp calculates a high resolution image a series of handheld-shot photos by exploiting the fact that the little shakes that occur between the shots lead to shifts on a subpixel level, which can be used to enhance image detail and remove moire. In this regard, the fact that a photographers hands aren't as stable as a tripod finally has a silver lining ;)
+On this way the program is able to obtain an image of approximately twice the resolution of the input images.</p>
+
+<p>The processing pipeline of the program is quite simple:</p>
+
+<ol>
+<li>All images are upscaled using Lanczos interpolation.</li>
+<li>The images are aligned to each other.</li>
+<li>The images are averaged.</li>
+<li>The resulting image is sharpened using Richardson-Lucy deconvolution.</li>
+</ol>
+
+<h1>
+<a id="samples" class="anchor" href="#samples" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Samples</h1>
+
+<p>A set of two samples is given below. On the bottom a 100% crop of an image processed from six hand-held photos is shown, and on the top there is a crop from one of the hand-held photos that was upscaled to the size of the processed image.</p>
+
+<p><img src="https://dl.dropboxusercontent.com/s/zgfwruf25odq8ri/Sharp2.jpg?dl=0" alt="Sample 1">
+<img src="https://dl.dropboxusercontent.com/s/x3y5etz80bfz467/VerySharp2.jpg?dl=0" alt="Sample 1 Processed">
+Note that the moire artifacts on the roof disappear!</p>
+
+<p><img src="https://dl.dropboxusercontent.com/s/y6d7f0q8yk8mh4b/Sharp.jpg?dl=0" alt="Sample 2">
+<img src="https://dl.dropboxusercontent.com/s/gbscxcrjruww7bv/VerySharp.jpg?dl=0" alt="Sample 2 Processed"></p>
+
+<h1>
+<a id="how-to-install-verysharp" class="anchor" href="#how-to-install-verysharp" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>How to install VerySharp</h1>
+
+<p>There are two ways to obtain VerySharp:</p>
+
+<ol>
+<li>Download the sourcecode and compile the program by running make in the source directory containing the makefile. Compilation was tested on Arch linux, 64bit. VerySharp depends on <a href="www.gtkmm.org">GTKmm</a> and <a href="www.opencv.org">OpenCV</a>.</li>
+<li>Download a pre-compiled binary, which may be the easiest way for users. Download the latest release here (TODO). Simply extract the archive and execute VerySharp. Currently only Linux binaries are included, but it is planned to release a windows build, too.</li>
+</ol>
+
+<h1>
+<a id="how-to-use-verysharp" class="anchor" href="#how-to-use-verysharp" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>How to use VerySharp</h1>
+
+<p>Please note that VerySharp is still in an early phase of development. It may run unstable or produce unexpected results. You can help improving VerySharp by reporting issues <a href="https://github.com/wilecoyote2015/VerySharp/issues">here</a> after you have made sure that you issue has not already been reported by someone else.</p>
+
+<ol>
+<li>
+<strong>Shooting photos:</strong>
+Capture a series of six images of your subject with identical exposure. Do NOT use a tripod because VerySharp calculates the extended image information based on little shifts between the individual images. Hold the camera as steadily as possible. For now, processing will only work properly for static subjects. Use RAW format.</li>
+<li>
+<strong>Preprocessing the Images:</strong>
+Use your favorite RAW converter and process the Images to taste. Use identical settings for all images so that they look the same. It is important to turn off sharpening. Turn on lens corrections like vignetting, CA and distortion correction.</li>
+<li>
+<strong>Using VerySharp:</strong>
+Start VerySharp and select the preprocessed images using the Select Images button. Define the output file using the Set Output button by navigating to the desired output directory in the appearing dialog and entering the desired filename without the file extension. Start processing using the Process button. The process will take some time.</li>
+<li><strong>Have fun!</strong></li>
+</ol>
+
+<h1>
+<a id="support-verysharp" class="anchor" href="#support-verysharp" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Support VerySharp</h1>
+
+<p>I am developing VerySharp during my free time with the hope that it is useful for you and that you have fun with it. If you like VerySharp and would like to say thank you, there are two ways to support me:</p>
+
+<ol>
+<li>If you are based in Germany or USA, you can place your next amazon order by using the following links:
+<a href="http://amzn.to/2btOeut">AmazonDE</a> <a href="http://amzn.to/2b8Uvh1">AmazonUS</a>. 
+It will not cost you anything more, and amazon will give me a small fraction of the price. So this is a win-win situation ;) Usually my share from an order correspond to the price of a hot chocolate. And isn't a hot chocolate a great way to say thank you?</li>
+<li>Especially if you are a user of Fujifilm cameras, you may take a look at my <a href="https://www.shapeways.com/shops/sonnenschein">Shapeways Shop</a>, where some of my 3D-Printed camera accessories are offered.</li>
+</ol>
+
+<p>Thank you very, very much!</p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/wilecoyote2015/VerySharp">VerySharp</a> is maintained by <a href="https://github.com/wilecoyote2015">wilecoyote2015</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
