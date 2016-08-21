@@ -269,7 +269,7 @@ void VerySharpApplication::OnButtonHelpClicked()
 		"Turn on lens corrections like vignetting, CA and distortion correction.\n"
 		"\n"
 		"3. Using verysharp\n"
-		"Start very sharp and select the preprocessed images using the Select Images button. "
+		"Start VerySharp and select the preprocessed images using the Select Images button. "
 		"Define the output file using the Set Output button. "
 		"Start processing using the Process button. The process will take some time.\n"
 		"\n"
