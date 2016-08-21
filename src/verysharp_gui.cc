@@ -274,7 +274,7 @@ void VerySharpApplication::OnButtonHelpClicked()
 		"Start processing using the Process button. The process will take some time.\n"
 		"\n"
 		"4. Have fun! \n"
-		"For further information visit TODO \n"
+		"For further information visit https://wilecoyote2015.github.io/VerySharp/ \n"
 		"\n \n"
 		"copyright (c) 2016 Björn Sonnenschein. \n"
 		"\n"
