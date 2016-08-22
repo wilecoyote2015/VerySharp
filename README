@@ -1,0 +1,21 @@
+VerySharp is a program that uses a series of photographs to calculate a higher resolution image with enhanced detail rendition. It stands in analogy to the principle of the pixel shift feature offered by some modern digital cameras: Those cameras capture multiple images with a subpixel-level sensor shift and then use that data to calculate an image whose resolution exceeds the sensor's physical resolution. For example, the Olympus E-M5 II, featuring a 16 megapixel sensor, is able to create a 40 megapixel image using pixel shift.
+
+The goal of VerySharp is to provide a way to create high resolution images with cameras that don't feature pixel shift capabilities. VerySharp calculates a high resolution image from a series of handheld-shot photos by exploiting the fact that the little shakes that occur between the shots lead to shifts on a subpixel level, which can be used to enhance image detail and remove moire. In this regard, the fact that a photographer's hands aren't as stable as a tripod finally got a silver lining ;) On this way the program is able to obtain an image of approximately twice the resolution of the input images.
+
+The processing pipeline of the program is quite simple:
+
+    All images are upscaled using Lanczos interpolation.
+    The images are aligned to each other.
+    The images are averaged.
+    The resulting image is sharpened using Richardson-Lucy deconvolution.
+
+
+How to use VerySharp:
+
+Please note that VerySharp is still in an early phase of development. It may run unstable or produce unexpected results. You can help improving VerySharp by reporting issues here after you have made sure that you issue has not already been reported by someone else. It is recommended to have at least 8 GB of RAM.
+
+1. Shooting photos: Capture a series of six images of your subject with identical exposure. Do NOT use a tripod because VerySharp calculates the extended image information based on little shifts between the individual images. Hold the camera as steadily as possible. For now, processing will only work properly for static subjects. Use RAW format.
+2. Preprocessing the Images: Use your favorite RAW converter and process the Images to taste. Use identical settings for all images so that they look the same. It is important to turn off sharpening. Turn on lens corrections like vignetting, CA and distortion correction.
+3. Using VerySharp: Start VerySharp and select the preprocessed images using the Select Images button. Define the output file using the Set Output button by navigating to the desired output directory in the appearing dialog and entering the desired filename without the file extension. Start processing using the Process button. The process will take some time.
+4. Have fun!
+
