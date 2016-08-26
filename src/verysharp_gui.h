@@ -18,13 +18,7 @@
 
 
 #include "photo_merger.h"
-//#include <gtkmm.h>
-#include <gtkmm/button.h>
-#include <gtkmm/window.h>
-#include <gtkmm/messagedialog.h>
 #include <gtkmm.h>
-#include <gtkmm/buttonbox.h>
-#include <gtkmm/box.h>
 #include <iostream>
 #include <thread>
 // #include <string>
