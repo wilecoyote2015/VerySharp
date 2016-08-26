@@ -19,8 +19,8 @@
 
 #include "deconvolve.h"
 
-void Deconvolve::DeconvolveLucy(Mat &recent_reconstruction, const Mat &kernel) {
-	
+void Deconvolve::DeconvolveLucy(Mat &recent_reconstruction, const Mat &kernel) 
+{
 	float min_value = 1e-2;
 	
 	int width = recent_reconstruction.cols;
@@ -57,6 +57,45 @@ void Deconvolve::DeconvolveLucy(Mat &recent_reconstruction, const Mat &kernel) {
 		// Correlate the correction
 		filter2D(correction,correction,-1,kernel);
 
+		multiply(recent_reconstruction,correction,recent_reconstruction);
+	};
+}
+
+void Deconvolve::DeconvolveGoldMeinel(cv::Mat& recent_reconstruction, const cv::Mat& kernel)
+{
+	float min_value = 1e-2;
+	
+	int width = recent_reconstruction.cols;
+	int height = recent_reconstruction.rows;
+	
+	Mat recent_reconstruction_convolved;
+	Mat rawImage = recent_reconstruction.clone();
+	
+	// Create flipped kernel for convolution using filter2d
+	Mat kernel_flipped;
+	flip(kernel, kernel_flipped, -1);
+	for(int i=0; i < 40; i++) {
+
+		// Convolve the kernel with the blurred image
+		recent_reconstruction_convolved = recent_reconstruction.clone();
+		filter2D(recent_reconstruction,recent_reconstruction_convolved,-1,kernel_flipped);
+		
+		// Divide the actual Image by the blurred reconstruction
+		Mat correction = Mat::zeros(recent_reconstruction_convolved.size(), CV_32FC3);
+		divide(rawImage,recent_reconstruction_convolved,correction);
+
+		// Set pixel values to zero where division by zero occured
+// 		for ( int x = 0; x < width; x++) {
+// 			for (int y = 0; y < height; y++) {
+// 				if (recent_reconstruction_convolved.at<Vec3f>(y,x)[0] < min_value)
+// 					correction.at<Vec3f>(y,x)[0] = 0.;
+// 				if (recent_reconstruction_convolved.at<Vec3f>(y,x)[1] < min_value)
+// 					correction.at<Vec3f>(y,x)[1] = 0.;
+// 				if (recent_reconstruction_convolved.at<Vec3f>(y,x)[2] < min_value)
+// 					correction.at<Vec3f>(y,x)[2] = 0.;
+// 			}
+// 		}	
+		
 		multiply(recent_reconstruction,correction,recent_reconstruction);
 	};
 }

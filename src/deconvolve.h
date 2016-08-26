@@ -32,7 +32,8 @@ using namespace cv;
 class Deconvolve {
 public:
 	Mat CalculateKernel();
-	void DeconvolveLucy(Mat &image, const Mat &kernel);
+	void DeconvolveLucy(Mat &recent_reconstruction, const Mat &kernel);
+	void DeconvolveGoldMeinel(Mat &recent_reconstruction, const Mat &kernel); 
 	Mat KernelSimulatedPSF(int scale_factor, int resize_interpolation);
 private:	
 	Mat ApplyDFT(Mat input_image);

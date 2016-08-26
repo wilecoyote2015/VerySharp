@@ -101,7 +101,7 @@ bool PhotoMerger::MergePhotos(Glib::Dispatcher* dispatcher_progress, Glib::Dispa
 		int num_tiles = num_tiles_x * num_tiles_y;
 		double step_progress = max_progress / num_tiles;
 
-		for (int x_tile_number = 0; x_tile_number < num_tiles_x && continue_processing_; x_tile_number++) {
+		for (int x_tile_number = 1; x_tile_number < num_tiles_x && continue_processing_; x_tile_number++) {
 			for (int y_tile_number = 0; y_tile_number < num_tiles_y && continue_processing_; y_tile_number++) {
 				// Only continue if the process wasn't aborted by the user
 				ProcessTile(
@@ -253,9 +253,12 @@ void PhotoMerger::ProcessTile(
 		// TODO: Multiply the Tile with the weight mask
 		
 		//deblur the Tile with margin
+		cout << "deconvolving tile \n";
 		Deconvolve deconvolver;
 		Mat kernel = deconvolver.CalculateKernel();
-		deconvolver.DeconvolveLucy(tile_processed_with_margin, kernel);
+		//deconvolver.DeconvolveLucy(tile_processed_with_margin, kernel);
+		deconvolver.DeconvolveGoldMeinel(tile_processed_with_margin, kernel); //faster
+		cout << "finished deconvolving tile \n";
 		
 		// Add the  processed Tile to the outputImage
 		tile_output += tile_processed_without_margin;
