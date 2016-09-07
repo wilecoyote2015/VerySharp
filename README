@@ -1,5 +1,6 @@
-For further information please visit: https://wilecoyote2015.github.io/VerySharp/s
+For further information please visit: https://wilecoyote2015.github.io/VerySharp
 Test
+
 
 VerySharp is a program that uses a series of photographs to calculate a higher resolution image with enhanced detail rendition. It stands in analogy to the principle of the pixel shift feature offered by some modern digital cameras: Those cameras capture multiple images with a subpixel-level sensor shift and then use that data to calculate an image whose resolution exceeds the sensor's physical resolution. For example, the Olympus E-M5 II, featuring a 16 megapixel sensor, is able to create a 40 megapixel image using pixel shift.
 
