@@ -1,4 +1,0 @@
-run make in this directory.
-
-required libs:
-	gtkmm, opencv
