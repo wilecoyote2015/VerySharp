@@ -22,19 +22,26 @@ class Deconvolver:
     ## Apply Richardson-Lucy deconvolution to the Image
     #  @param image input image as numpy array
     #  @return deconvolved image as numpy array
-    def deconvolveLucy(self, image):
+    def deconvolveLucy(self, image, continue_processing, signal_status_update):
         # create the kernel
         kernel = self.calculateKernel()
-        
+
         # flip the kernel for the convolution
         kernel_flipped_vertically = np.flipud(kernel)
         kernel_flipped = np.fliplr(kernel_flipped_vertically)
-        
+
         # set input image as initial guess
         recent_reconstruction = np.copy(image)
         
         # recursively calculate the maximum likelihood solution
         for i in range(self.iterations):
+            if continue_processing[0] == False:
+                return "aborted"
+                
+                
+            percentage_finished = 100. * float(i) / float(self.iterations)
+            status = "deconvolving: " + str(percentage_finished) + "%"
+            signal_status_update.emit(status)
             
             # convolve the recent reconstruction with the kernel
             convolved_recent_reconstruction = cv2.filter2D(recent_reconstruction,
@@ -59,7 +66,7 @@ class Deconvolver:
             recent_reconstruction *= convolved_correction
 
         # print(recent_reconstruction)
-            
+
         return recent_reconstruction
         
             

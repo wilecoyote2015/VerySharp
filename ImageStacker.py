@@ -32,21 +32,39 @@ import cv2
 import ImageDataHolder
 import CommonFunctions
 import Deconvolver
+from PyQt5.QtCore import QThread, pyqtSignal
 
 
-class ImageStacker:
-    def __init__(self):       
+class ImageStacker(QThread):
+    signal_finished = pyqtSignal()
+    signal_status_update = pyqtSignal(str)
+    
+    def __init__(self, image_paths, output_path):       
+        QThread.__init__(self)
+        self.image_paths = image_paths
+        self.output_path = output_path
         self.scale_factor = 1.4
+        self.continue_processing = [True]  # wrapper for passing per reference
+        
+        
+    def __del__(self):
+        self.wait()
+        
+    def run(self):
+        self.stackImages()
+        
+    def abort(self):
+        self.continue_processing[0] = False
     
     ## stack a set of Images by averaging
     #  @param images list of astropy fits Objects 
-    def stackImages(self, image_paths):
+    def stackImages(self):
         
         # build the image data object containing the hdulists
-        dataset = ImageDataHolder.ImageDataHolder(image_paths)     
+        dataset = ImageDataHolder.ImageDataHolder(self.image_paths)     
         
         # create output image as numpy array with upscaled image size
-        image_dimension = cv2.imread(image_paths[0]).data.shape
+        image_dimension = cv2.imread(self.image_paths[0]).data.shape
         stacked_image = np.zeros(image_dimension, np.float32)
         stacked_image_upscaled = cv2.resize(stacked_image,
                                             None,
@@ -58,7 +76,9 @@ class ImageStacker:
         image_aligner = ImageAligner.ImageAligner(self.scale_factor)
         
         # calculate the transformation matrices for alignment
-        image_aligner.calculateTransformationMatrices(dataset)
+        image_aligner.calculateTransformationMatrices(dataset, 
+                                                      self.continue_processing,
+                                                      self.signal_status_update)
             
 # will be used for motion detection in the far future...
 #        # calculate distortion maps
@@ -68,37 +88,49 @@ class ImageStacker:
 #            
 #            # calculate the distortion maps
 #            flow_calculator.calculateDistortionMaps(dataset)
-            
-        # average images; iterate through all images
-        num_images = len(image_paths) # number of images = length of image list
+
+        # average images
+        num_images = len(self.image_paths) # number of images = length of image list
         for index in range(num_images):
             
+            if self.continue_processing[0] == False:
+                return "aborted"
+
             print ("stacking image ", index)
+            status = "stacking image " + str(index + 1) + " of " + str(num_images)
+            self.signal_status_update.emit(status)
 
             # get the data of given index
             data = dataset.getData(index)
-            
+
             # align and undistort image
             image_processed = self.processImage(index, data)
             
             # stack the image
             stacked_image_upscaled += image_processed
-            
+
         stacked_image_upscaled /= num_images
 
         print ("deconvolve image")
-        deconvolver = Deconvolver.Deconvolver()
-        stacked_image_upscaled_deconvolved = deconvolver.deconvolveLucy(stacked_image_upscaled)
-        
-        return stacked_image_upscaled_deconvolved
+        if self.continue_processing[0]:
+            deconvolver = Deconvolver.Deconvolver()
+            stacked_image_upscaled_deconvolved = deconvolver.deconvolveLucy(stacked_image_upscaled, 
+                                                                            self.continue_processing,
+                                                                            self.signal_status_update)
+
+        if self.continue_processing[0]:
+            cv2.imwrite(self.output_path, stacked_image_upscaled_deconvolved)
+            self.signal_status_update.emit("finished!")
     
+        self.signal_finished.emit()
+
     
     ## align and undistort the image.
     #  @param data dictionary of {hdu_list, transform_matrix, distortion_map}
     #  @return processed image as numpy float32 array
     def processImage(self, index, data):
         # get the image
-        image = CommonFunctions.preprocessHduImage(data["image"], 
+        image = CommonFunctions.preprocessImage(data["image"], 
                                                    self.scale_factor)
 
         image_processed = image

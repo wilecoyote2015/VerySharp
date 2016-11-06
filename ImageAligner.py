@@ -21,14 +21,14 @@ class ImageAligner:
     #  @param dataset ImageDataHolder object with filled hdulists and empty 
     #  transform matrices
     #  @return dataset with filled tansform_matrices for upscaled images
-    def calculateTransformationMatrices(self, dataset):
+    def calculateTransformationMatrices(self, dataset, continue_processing, signal_status_update):
         # fill unity matrix for first image
         unity_transform_matrix = np.eye(2, 3, dtype=np.float32)
         dataset.setTransformMatrix(0, unity_transform_matrix)  #@todo: is this possible inplace?
         
         # set the first image as reference
         first_data = dataset.getData(0)
-        image_reference = CommonFunctions.preprocessHduImage(first_data["image"], 
+        image_reference = CommonFunctions.preprocessImage(first_data["image"], 
                                                              self.scale_factor)
     
         # iterate through the dataset and create the tansformation matrix for each.
@@ -36,11 +36,17 @@ class ImageAligner:
         num_images = dataset.getImageCount()
         for index in range(1, num_images):
             
+            if continue_processing[0] == False:
+                return "aborted"
+            
             print ("calculating transformation map for alignment of image ", index)      
+            
+            status = "aligning image " + str(index + 1) + " of " + str(num_images)
+            signal_status_update.emit(status)
             
             # Get the image at the index
             data = dataset.getData(index)
-            image = CommonFunctions.preprocessHduImage(data["image"], 
+            image = CommonFunctions.preprocessImage(data["image"], 
                                                        self.scale_factor)
             
             # rough inital alignment using feature detection

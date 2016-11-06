@@ -9,9 +9,9 @@ Created on Sat Nov  5 20:15:18 2016
 from PyQt5.QtWidgets import (QWidget, QPushButton, QLineEdit, QFileDialog,
                              QHBoxLayout, QVBoxLayout, QMessageBox, QListWidget)
 from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import pyqtSlot, pyqtSignal
 import configparser
 import ImageStacker
-import cv2
 
 # TODO: make input and output dialog folders persistent!
 
@@ -27,14 +27,16 @@ class MainWindow(QWidget):
         
         self.output_file_field = None
         self.filepaths = None
+        self.stacker = None
+        self.progress_box = None
         
         self.initUI()
         
         
     def initUI(self):
         
-        button_process = QPushButton('Process', self)
-        button_process.clicked.connect(self.startProcessing)
+        self.button_process = QPushButton('Process', self)
+        self.button_process.clicked.connect(self.startProcessing)
         
         button_select_files = QPushButton('Select Images', self)
         button_select_files.clicked.connect(self.selectInputFiles)
@@ -49,7 +51,7 @@ class MainWindow(QWidget):
         
         hbox_buttons = QHBoxLayout()
         hbox_buttons.addWidget(button_select_files)
-        hbox_buttons.addWidget(button_process)
+        hbox_buttons.addWidget(self.button_process)
         hbox_buttons.addStretch(1)
         hbox_buttons.addWidget(button_help)
         
@@ -71,6 +73,7 @@ class MainWindow(QWidget):
         self.setWindowTitle('VerySharp')
         self.setLayout(vbox) 
         
+        
     def selectInputFiles(self):
         filter_images = ("Images (*jpg *jpeg *JPG *jpe *bmp *dib *jp2 *png *tiff *tif *ppm *pgm *pbm)")
         filepaths = QFileDialog.getOpenFileNames(self,
@@ -82,7 +85,6 @@ class MainWindow(QWidget):
             self.filepaths.append(str(filepath))
             
         self.input_files_list.clear()
-        print(self.filepaths)
         for input_path in filepaths:
             self.input_files_list.addItem(input_path)
 #        self.filepaths = QFileDialog.getOpenFileName(self,
@@ -97,17 +99,52 @@ class MainWindow(QWidget):
     def startProcessing(self):
         output_path = str(self.output_file_field.text())
         if self.filepaths is not None and output_path != "":
-            stacker = ImageStacker.ImageStacker()
-            processed_image = stacker.stackImages(self.filepaths)
-            cv2.imwrite(output_path, processed_image)
+            # grey out the processing button
+            self.button_process.setEnabled(False)
+            
+            self.progress_box = self.showProcessingBox()
+            self.stacker = ImageStacker.ImageStacker(self.filepaths, output_path)
+            self.stacker.signal_finished.connect(self.processing_finished)
+            self.stacker.signal_status_update.connect(self.progress_box.setInformativeText)
+            
+            self.stacker.start()
+            
+            self.progress_box.exec_()
+            
         else:
             self.showMissingPathsDialog()
         
+            
     def showMissingPathsDialog(self):
         QMessageBox.information(self, 'No files specifies',
         "Please select the input and output files.")
             
-            
+        
+    def showProcessingBox(self):
+        message_box = QMessageBox()
+        message_box.setIcon(QMessageBox.Information)
+
+        message_box.setText("Processing Image")
+        message_box.setInformativeText("Starting Process")
+        message_box.setWindowTitle("Progress")
+        message_box.setStandardButtons(QMessageBox.Abort)
+        message_box.buttonClicked.connect(self.abortProcessing)
+
+        return message_box
+        
+        
+    def abortProcessing(self):
+        self.stacker.abort()
+        
+        
+    def processing_finished(self):
+        self.button_process.setEnabled(True)
+        try:
+            self.progress_box.accept()
+        except:
+            pass
+        
+        
     def showHelpBox(self):
         
         help_text = ("This program combines a series of handheld-shot photos into an image with doubled resolution and "
