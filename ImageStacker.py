@@ -1,29 +1,20 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed Sep 21 20:10:24 2016
+    This file is part of verysharp,
+    copyright (c) 2016 Björn Sonnenschein.
 
-@author: wile
-"""
+    verysharp is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-""" 
-TODO: In order to work with memory critical amounts of images,
-the program has to be restructured:
-- the images are stored in a two-dimensional array, holding triples of images 
-(as hdulists), transformation matrices and maps for distortion correction.
-- IMPORTANT: Scaling has to be done in each step individually then!
-- in fitsstacker:
-- at first, the array is passed to a function of aligner, 
-calculating transformation matrices for each image.
-- Then, the array is passed to a function of the undistorter, which calculates
-the undistortion maps, by first transforming each image in a local variable
-with the alignment matrix and then calculating optical flows. Do that for each
-image in order to save memory. local variables are used for the images because
-astropy does not use ram for the fits (if set so in the load fits function?),
-so that loading all images into ram is not necessary.
-- then, all images are aligned using transformation with the matrix, 
-undistorted using the remap function and then stacked one by one. 
-- It should be configurable via config whether alignment and undistortion is
-performed. Use if conditions here for that!
+    verysharp is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with verysharp.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import numpy as np
