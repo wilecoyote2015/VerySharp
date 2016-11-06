@@ -17,16 +17,6 @@
     along with verysharp.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-# @todo: the script should take the input directory, output file and the
-# monitoring directory per argument optionally. If those are given, the values in 
-# the config variable are overwritten
-
-# Scripts for making the subfolders for the data and iterate through them while
-# executing this script!
-
-# @todo: not for this project, but just to be complete: write proper fits headers
-# by carrying over the data from the input file's headers and modifying it.
-
 import sys
 import MainWindow
 from PyQt5.QtWidgets import QApplication

@@ -104,7 +104,7 @@ class MainWindow(QWidget):
 #                                                filter=filter_images)[0]
         
     def selectOutputFile(self):
-        output_file = QFileDialog.getSaveFileName(self, 'Set Output')[0]
+        output_file = QFileDialog.getSaveFileName(self, 'Set Output with file extension')[0]
         self.output_file_field.setText(output_file)
         
         
@@ -175,7 +175,8 @@ class MainWindow(QWidget):
 		+ "\n"
 		+ "3. Using verysharp\n"
 		+ "Start VerySharp and select the preprocessed images using the Select Images button. "
-		+ "Define the output file using the Set Output button. "
+		+ "Define the output file using the Set Output button. Important: Filename must include the extension "
+           + "of the desired image format. For example, type output.jpg to save the result as jpeg. \n"
 		+ "Start processing using the Process button. The process will take some time.\n"
 		+ "\n"
 		+ "4. Have fun! \n"
