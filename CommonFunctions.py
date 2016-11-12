@@ -24,12 +24,12 @@ import numpy as np
 #  format and upscale it.
 #  @param image data of astropy hdu containing the image
 #  @return upscaled Image in Opencv compatible Numpy format.
-def preprocessImage(image, scale_factor):
+def preprocessImage(image, scale_factor, data_type=np.float32):
     # convert to float32, which is much appreciated by OpenCV
-    image_float32 = image.astype(np.float32)        
+    image = image.astype(data_type)        
     
     # Upscale the Image
-    image_upscaled = cv2.resize(image_float32,
+    image_upscaled = cv2.resize(image,
                  None,
                  fx=scale_factor,
                  fy=scale_factor,

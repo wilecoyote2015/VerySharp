@@ -146,6 +146,7 @@ class MainWindow(QWidget):
         
         
     def abortProcessing(self):
+        self.button_process.setEnabled(True)
         self.stacker.abort()
         
         
