@@ -52,7 +52,7 @@ class Deconvolver:
                 return "aborted"
                 
                 
-            percentage_finished = 100. * float(i) / float(self.iterations)
+            percentage_finished = round(100. * float(i) / float(self.iterations))
             status = "deconvolving: " + str(percentage_finished) + "%"
             signal_status_update.emit(status)
             
@@ -60,17 +60,16 @@ class Deconvolver:
             convolved_recent_reconstruction = cv2.filter2D(recent_reconstruction,
                                                            -1,
                                                            kernel_flipped)
-
-            # Correct zero values in convolved_recent_reconstruction
-            minimal_value = 1E-1
-            convolved_recent_reconstruction[np.logical_or(convolved_recent_reconstruction < minimal_value, np.isnan(convolved_recent_reconstruction))] = minimal_value
-                                            
-            #print (convolved_recent_reconstruction)
             
             # calculate the correction array
             correction = image / convolved_recent_reconstruction
-            # print (correction)
             
+            # get infinite values (from divisions by zero)
+            infinite_values = np.invert(np.isfinite(correction))
+            
+            #set infinite values to zero because according pixels are black
+            correction[infinite_values] = 0.
+
             # convolve the correction
             convolved_correction = cv2.filter2D(correction,
                                                 -1,

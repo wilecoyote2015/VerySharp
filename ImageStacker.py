@@ -36,6 +36,9 @@ class ImageStacker(QThread):
         self.output_path = output_path
         self.scale_factor = 1.4
         self.continue_processing = [True]  # wrapper for passing per reference
+        self.tile_size = 1024
+        self.tile_margin = 256
+        self.tiles = None
         
         
     def __del__(self):
@@ -54,22 +57,24 @@ class ImageStacker(QThread):
         # build the image data object containing the hdulists
         dataset = ImageDataHolder.ImageDataHolder(self.image_paths)     
         
+        # instanciate the image aligner object
+        image_aligner = ImageAligner.ImageAligner(self.scale_factor)
+        
+        # calculate the transformation matrices for alignment
+        image_dimension = cv2.imread(self.image_paths[0]).shape
+        self.tiles = self.calculateTiles(image_dimension)
+        image_aligner.calculateTransformationMatrices(dataset, 
+                                                      self.tiles,
+                                                      self.continue_processing,
+                                                      self.signal_status_update)
+        
         # create output image as numpy array with upscaled image size
-        image_dimension = cv2.imread(self.image_paths[0]).data.shape
         stacked_image = np.zeros(image_dimension, np.float32)
         stacked_image_upscaled = cv2.resize(stacked_image,
                                             None,
                                             fx=self.scale_factor,
                                             fy=self.scale_factor,
                                             interpolation=cv2.INTER_CUBIC)
-        
-        # instanciate the image aligner object
-        image_aligner = ImageAligner.ImageAligner(self.scale_factor)
-        
-        # calculate the transformation matrices for alignment
-        image_aligner.calculateTransformationMatrices(dataset, 
-                                                      self.continue_processing,
-                                                      self.signal_status_update)
             
 # will be used for motion detection in the far future...
 #        # calculate distortion maps
@@ -97,6 +102,8 @@ class ImageStacker(QThread):
             # align and undistort image
             image_processed = self.processImage(index, data)
             
+            del data
+            
             # stack the image
             stacked_image_upscaled += image_processed
 
@@ -108,6 +115,7 @@ class ImageStacker(QThread):
             stacked_image_upscaled_deconvolved = deconvolver.deconvolveLucy(stacked_image_upscaled, 
                                                                             self.continue_processing,
                                                                             self.signal_status_update)
+        #stacked_image_upscaled_deconvolved = stacked_image_upscaled
 
         if self.continue_processing[0]:
             cv2.imwrite(self.output_path, stacked_image_upscaled_deconvolved)
@@ -115,28 +123,95 @@ class ImageStacker(QThread):
     
         self.signal_finished.emit()
 
-    
     ## align and undistort the image.
     #  @param data dictionary of {hdu_list, transform_matrix, distortion_map}
     #  @return processed image as numpy float32 array
     def processImage(self, index, data):
         # get the image
-        image = CommonFunctions.preprocessImage(data["image"], 
+        raw_image = CommonFunctions.preprocessImage(data["image"], 
                                                    self.scale_factor)
+        image_dimension = raw_image.shape
 
-        image_processed = image
-
-        # apply the transformation to the input image
-        # get the image dimension
-        image_shape = image.shape
+        # create output image as numpy array with upscaled image size
+        processed_image = np.zeros(image_dimension, np.float32)
         
-        # @todo: here, do not use config but simply check if matrix is None
-        # Transform the Image
-        image_aligned = cv2.warpAffine(image,
-                                       data["transform_matrix"],
-                                       (image_shape[1],image_shape[0]),
-                                       flags=cv2.INTER_CUBIC + cv2.WARP_INVERSE_MAP);
+        # align all tiles
+        for tile, transform_matrix in zip(self.tiles, data["transform_matrix"]):
 
-        image_processed = image_aligned                                           
+            tile_slice_raw_image = np.s_[tile["y"][0]:tile["y"][1],
+                                         tile["x"][0]:tile["x"][1]]
+            raw_image_tile = raw_image[tile_slice_raw_image]
+            tile_aligned = cv2.warpAffine(raw_image_tile,
+                                          transform_matrix,
+                                          (raw_image_tile.shape[1],raw_image_tile.shape[0]),
+                                          flags=cv2.INTER_CUBIC + cv2.WARP_INVERSE_MAP);      
+                                          
+            # Insert the inner area of tile_aligned (so without margins) into
+            # the appropriate area in the processed image
+            min_x = tile["x"][0] + tile["margin_x"][0]
+            min_y = tile["y"][0] + tile["margin_y"][0]
+            max_x = tile["x"][1] - tile["margin_x"][1]
+            max_y = tile["y"][1] - tile["margin_y"][1]
+            tile_slice_processed_image = np.s_[min_y:max_y,
+                                               min_x:max_x]
+                                               
+            max_y_aligned = tile_aligned.shape[0] - tile["margin_y"][1]
+            max_x_aligned = tile_aligned.shape[1] - tile["margin_x"][1]
+            tile_aligned_slice = np.s_[tile["margin_y"][0]:max_y_aligned,
+                                       tile["margin_x"][0]:max_x_aligned]                                
+                                               
+            tile_aligned_without_margin = tile_aligned[tile_aligned_slice]
+                                          
+            processed_image[tile_slice_processed_image] = tile_aligned_without_margin
                                        
-        return image_processed
+        return processed_image
+
+    def calculateTiles(self, image_dimension):
+        # todo: also save the effective margins in some way for later processing
+        image_dimension_upscaled = (np.round(np.multiply(image_dimension,self.scale_factor))).astype(int)  # TODO: correct rounding?
+        
+        tiles = []
+        
+        num_tiles_x = int(np.ceil(image_dimension_upscaled[1] / self.tile_size))
+        num_tiles_y = int(np.ceil(image_dimension_upscaled[0] / self.tile_size))
+        
+        # attention: max values are indices for slicing, so they are in fact
+        # max + 1 due to python indexing!
+        for index_y in range(num_tiles_y):
+            for index_x in range(num_tiles_x):
+                
+                min_x_without_margins = index_x * self.tile_size
+                min_y_without_margins = index_y * self.tile_size
+                max_x_without_margins = (index_x + 1) * self.tile_size
+                max_y_without_margins = (index_y + 1) * self.tile_size
+
+                min_x = min_x_without_margins - self.tile_margin
+                min_y = min_y_without_margins - self.tile_margin
+                max_x = max_x_without_margins + self.tile_margin
+                max_y = max_y_without_margins + self.tile_margin
+                
+                # correct for image bounds
+                min_x_corrected = max(min_x, 0)
+                min_y_corrected = max(min_y, 0)
+                max_x_corrected = min(max_x, image_dimension_upscaled[1])
+                max_y_corrected = min(max_y, image_dimension_upscaled[0])
+                
+                # calculate effective margins
+                min_x_without_margins = max(min_x_without_margins, 0)
+                min_y_without_margins = max(min_y_without_margins, 0)
+                max_x_without_margins = min(max_x_without_margins, image_dimension_upscaled[1])
+                max_y_without_margins = min(max_y_without_margins, image_dimension_upscaled[0])
+                margin_x_left = min_x_without_margins - min_x_corrected
+                margin_y_left = min_y_without_margins - min_y_corrected
+                margin_x_right = max_x_corrected - max_x_without_margins
+                margin_y_right = max_y_corrected - max_y_without_margins
+                
+                tile = {"x":[min_x_corrected,max_x_corrected],
+                        "y":[min_y_corrected,max_y_corrected],
+                        "margin_x":[margin_x_left,margin_x_right],
+                        "margin_y":[margin_y_left,margin_y_right]}
+                tiles.append(tile)
+                
+        return tiles
+                
+                

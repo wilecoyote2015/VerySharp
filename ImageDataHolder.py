@@ -30,8 +30,8 @@ class ImageDataHolder:
         # Fill the other lists with None so that they have the right length
         num_images = len(image_paths)
         for index in range(num_images):
-            self.transform_matrices.append(None)
-            self.distortion_maps.append(None)
+            self.transform_matrices.append([])
+            self.distortion_maps.append([])
 
     ## Get data at given index
     #  @param index integer index of the data to get
@@ -47,8 +47,8 @@ class ImageDataHolder:
     def getImageCount(self):
         return len(self.image_paths)
 
-    def setTransformMatrix(self, index, transform_matrix):
-        self.transform_matrices[index] = transform_matrix
+    def appendTransformMatrix(self, index, transform_matrix):
+        self.transform_matrices[index].append(transform_matrix)
         
     def setDistortionMap(self, index, distortion_map):
         self.distortion_maps[index] = distortion_map
