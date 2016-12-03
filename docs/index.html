@@ -73,7 +73,12 @@ Note that the moire artifacts on the roof disappear!</p>
 
 <ol>
 <li>Download a pre-packaged binary for Windows, which may be the easiest way for Windows users. Download the latest release using the "Download latest release" button on top of this page, extract the archive and execute VerySharp.exe. Note: If you encounter an error stating "Entry Point Not Found" when trying to run VerySharp, most likely you need to install recent windows updates on your computer.</li>
-<li>Download the sourcecode and execute VerySharp using python3 by executing "python main.py" from the command shell in the source code directory. You can obtain the latest source code using the "Download source .zip" button on top of this page. Alternatively, you may clone your own copy of the git repository by running the command "git clone https://github.com/wilecoyote2015/VerySharp.git". VerySharp depends on <a href="https://riverbankcomputing.com/software/pyqt/intro" target="_blank">PyQT</a>, <a href="https://numpy.org" target="_blank">NumPy</a> and <a href="http://www.opencv.org" target="_blank">OpenCV for Python</a>.</li>
+<li>Download the sourcecode and execute VerySharp using python3 by executing "python main.py" from the command shell in the source code directory. You can obtain the latest source code using the "Download source .zip" button on top of this page. Alternatively, you may clone your own copy of the git repository by running the command "git clone https://github.com/wilecoyote2015/VerySharp.git". VerySharp depends on <a href="https://riverbankcomputing.com/software/pyqt/intro" target="_blank">PyQT5</a>, <a href="https://numpy.org" target="_blank">NumPy</a> and <a href="http://www.opencv.org" target="_blank">OpenCV for Python</a>.
+On Windows, Numpy and OpenCV can be installed using <a href="https://solarianprogrammer.com/2016/09/17/install-opencv-3-with-python-3-on-windows/" target="_blank">this guide</a>, and <a href="http://pyqt.sourceforge.net/Docs/PyQt5/installation.html" target="_blank">here</a> you find help on installing PyQt5.
+If you are using Mac, installing OpenCV can be a bit tricky, unfortunately. 
+OpenCV has to be compiled from source in order to use it with Pyton 3.
+<a href="http://www.pyimagesearch.com/2015/06/29/install-opencv-3-0-and-python-3-4-on-osx/" target="_blank">This</a> is a guide for doing so.
+PyQT5 can be installed using the command "brew install pyqt5" (without quotes) if you have brew installed, which should be the case if you have followed the guide to install OpenCV.</li>
 </ol>
 
 <h1>
