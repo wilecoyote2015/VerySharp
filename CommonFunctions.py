@@ -24,7 +24,7 @@ import numpy as np
 #  format and upscale it.
 #  @param image data of astropy hdu containing the image
 #  @return upscaled Image in Opencv compatible Numpy format.
-def preprocessImage(image, scale_factor, data_type=np.float32):
+def preprocessImage(image, scale_factor, data_type=np.float32, interpolation=cv2.INTER_CUBIC):
     # convert to float32, which is much appreciated by OpenCV
     image = image.astype(data_type)        
     
@@ -33,6 +33,6 @@ def preprocessImage(image, scale_factor, data_type=np.float32):
                  None,
                  fx=scale_factor,
                  fy=scale_factor,
-                 interpolation=cv2.INTER_CUBIC)                     
+                 interpolation=interpolation)
                  
     return image_upscaled

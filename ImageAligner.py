@@ -41,9 +41,10 @@ class ImageAligner:
         
         # set the first image as reference
         first_data = dataset.getData(0)
-        reference_image = CommonFunctions.preprocessImage(first_data["image"], 
-                                                             self.scale_factor,
-                                                             data_type=np.uint8)        
+        reference_image = CommonFunctions.preprocessImage(first_data["image"],
+                                                          self.scale_factor,
+                                                          data_type=np.uint8,
+                                                          interpolation=cv2.INTER_CUBIC)
     
         # iterate through the dataset and create the tansformation matrix for each.
         # except the first one
@@ -57,9 +58,10 @@ class ImageAligner:
             
             # Get the image at the index
             data = dataset.getData(index)
-            image = CommonFunctions.preprocessImage(data["image"], 
-                                                       self.scale_factor,
-                                                       data_type=np.uint8)
+            image = CommonFunctions.preprocessImage(data["image"],
+                                                    self.scale_factor,
+                                                    data_type=np.uint8,
+                                                    interpolation=cv2.INTER_CUBIC)
             
             previous_transform_matrix = warp_matrix = np.eye(2,3, dtype=np.float32)
             

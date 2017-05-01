@@ -129,7 +129,8 @@ class ImageStacker(QThread):
     def processImage(self, index, data):
         # get the image
         raw_image = CommonFunctions.preprocessImage(data["image"], 
-                                                   self.scale_factor)
+                                                   self.scale_factor,
+                                                    interpolation=cv2.INTER_CUBIC)
         image_dimension = raw_image.shape
 
         # create output image as numpy array with upscaled image size
