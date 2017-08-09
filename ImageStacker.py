@@ -39,6 +39,7 @@ class ImageStacker(QThread):
         self.tile_size = 1024
         self.tile_margin = 256
         self.tiles = None
+        self.bool_deconvolve = True
         
         
     def __del__(self):
@@ -111,10 +112,13 @@ class ImageStacker(QThread):
 
         print ("deconvolve image")
         if self.continue_processing[0]:
-            deconvolver = Deconvolver.Deconvolver()
-            stacked_image_upscaled_deconvolved = deconvolver.deconvolveLucy(stacked_image_upscaled, 
-                                                                            self.continue_processing,
-                                                                            self.signal_status_update)
+            if self.bool_deconvolve:
+                deconvolver = Deconvolver.Deconvolver()
+                stacked_image_upscaled_deconvolved = deconvolver.deconvolveLucy(stacked_image_upscaled,
+                                                                                self.continue_processing,
+                                                                                self.signal_status_update)
+            else:
+                stacked_image_upscaled_deconvolved = stacked_image_upscaled
         #stacked_image_upscaled_deconvolved = stacked_image_upscaled
 
         if self.continue_processing[0]:
