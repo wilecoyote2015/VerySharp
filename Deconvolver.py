@@ -28,7 +28,7 @@ class Deconvolver:
     ## The constructor
     #  @param config the config file object
     def __init__(self):
-        self.sigma = 0.8
+        self.sigma = 1.1
         self.iterations = 40
         self.kernel_size = 5
         
