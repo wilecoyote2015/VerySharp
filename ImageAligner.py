@@ -63,7 +63,7 @@ class ImageAligner:
                                                     data_type=np.uint8,
                                                     interpolation=cv2.INTER_CUBIC)
             
-            previous_transform_matrix = warp_matrix = np.eye(2,3, dtype=np.float32)
+            previous_transform_matrix = np.eye(2,3, dtype=np.float32)
             
             counter = 0
             for tile in tiles:
