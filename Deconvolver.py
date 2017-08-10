@@ -28,9 +28,10 @@ class Deconvolver:
     ## The constructor
     #  @param config the config file object
     def __init__(self):
-        self.sigma = 1.1
+        self.sigma = 1.5
         self.iterations = 40
-        self.kernel_size = 5
+        self.kernel_size = 10
+        self.scale_factor = 2.
         
     ## Apply Richardson-Lucy deconvolution to the Image
     #  @param image input image as numpy array
@@ -104,15 +105,27 @@ class Deconvolver:
         return kernel
     
     # gauss PSF for testing
+    # def calculatePSF(self, x, y, center_index):
+    #     quad_distance = (x - center_index)**2 + (y - center_index)**2
+    #     output_value = 1. / (2.*np.pi*pow(self.sigma,2)) * np.exp( - quad_distance / (2. * pow(self.sigma,2)))
+    #     return output_value
+
     def calculatePSF(self, x, y, center_index):
-        quad_distance = (x - center_index)**2 + (y - center_index)**2
-        output_value = 1. / (2.*np.pi*pow(self.sigma,2)) * np.exp( - quad_distance / (2. * pow(self.sigma,2)))
-        return output_value
+        distance = np.sqrt((x - center_index) ** 2 + (y - center_index) ** 2)
+        pixel_size = self.scale_factor
+        pixel_radius = pixel_size / 2.
+
+        X = np.minimum(pixel_size, distance + pixel_radius)
+        Y = np.maximum(0., distance - pixel_radius)
+        Z = np.maximum(0., pixel_radius - distance)
+
+        result = X - Y + Z + (- X**2 + Y**2 - Z**2) / (2. * pixel_size)
+        return result
 
 if __name__ == "__main__":
     input_directory = "/run/media/bjoern/daten/Programming/Test_VerySharp/crop_enter/"
     input_file = "out_3.png"
-    output_file = "deconvolved_3_gauss.png"
+    output_file = "deconvolved_3_custom.png"
 
     from os.path import join
     input_filepath = join(input_directory, input_file)

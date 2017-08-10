@@ -39,7 +39,7 @@ class ImageStacker(QThread):
         self.tile_size = 1024
         self.tile_margin = 256
         self.tiles = None
-        self.bool_deconvolve = True
+        self.bool_deconvolve = False
         
         
     def __del__(self):
