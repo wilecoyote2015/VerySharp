@@ -34,14 +34,14 @@ class ImageStacker(QThread):
         QThread.__init__(self)
         self.image_paths = image_paths
         self.output_path = output_path
-        self.scale_factor = 3.
+        self.scale_factor = 2.
         self.continue_processing = [True]  # wrapper for passing per reference
         self.tile_size = 1024
         self.tile_margin = 256
         self.tiles = None
-        self.bool_deconvolve = False
+        self.bool_deconvolve = True
 
-        self.interpolation_upscale = cv2.INTER_LINEAR
+        self.interpolation_upscale = cv2.INTER_CUBIC
         
         
     def __del__(self):

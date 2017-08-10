@@ -28,9 +28,9 @@ class Deconvolver:
     ## The constructor
     #  @param config the config file object
     def __init__(self):
-        self.sigma = 1.5
+        self.sigma = 1.1
         self.iterations = 40
-        self.kernel_size = 9
+        self.kernel_size = 7
         self.scale_factor = 2.
         
     ## Apply Richardson-Lucy deconvolution to the Image
@@ -123,10 +123,10 @@ class Deconvolver:
         return result
 
 if __name__ == "__main__":
-    input_directory = "/run/media/bjoern/daten/Programming/Test_VerySharp/crop_enter/"
-    input_file = "out.png"
-    output_file = "deconvolved_2.png"
-    kernel_output_file = "kernel_2.png"
+    input_directory = "/run/media/bjoern/daten/Programming/Test_VerySharp/crop_draussen_1/bilder/"
+    input_file = "out_2_cubic.png"
+    output_file = "deconvolved_25.png"
+    kernel_output_file = "kernel_25.png"
 
     from os.path import join
     input_filepath = join(input_directory, input_file)
