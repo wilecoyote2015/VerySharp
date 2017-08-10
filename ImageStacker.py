@@ -34,7 +34,7 @@ class ImageStacker(QThread):
         QThread.__init__(self)
         self.image_paths = image_paths
         self.output_path = output_path
-        self.scale_factor = 2.
+        self.scale_factor = np.sqrt(2.)
         self.continue_processing = [True]  # wrapper for passing per reference
         self.tile_size = 1024
         self.tile_margin = 256

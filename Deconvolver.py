@@ -31,7 +31,7 @@ class Deconvolver:
         self.sigma = 1.1
         self.iterations = 40
         self.kernel_size = 7
-        self.scale_factor = 2.
+        self.scale_factor = np.sqrt(2.)
         
     ## Apply Richardson-Lucy deconvolution to the Image
     #  @param image input image as numpy array
