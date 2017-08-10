@@ -35,7 +35,7 @@ class Deconvolver:
     ## Apply Richardson-Lucy deconvolution to the Image
     #  @param image input image as numpy array
     #  @return deconvolved image as numpy array
-    def deconvolveLucy(self, image, continue_processing, signal_status_update):
+    def deconvolveLucy(self, image, continue_processing=None, signal_status_update=None):
         # create the kernel
         kernel = self.calculateKernel()
 
@@ -48,13 +48,14 @@ class Deconvolver:
         
         # recursively calculate the maximum likelihood solution
         for i in range(self.iterations):
-            if continue_processing[0] == False:
+            if continue_processing is not None and continue_processing[0] == False:
                 return "aborted"
                 
                 
             percentage_finished = round(100. * float(i) / float(self.iterations))
             status = "deconvolving: " + str(percentage_finished) + "%"
-            signal_status_update.emit(status)
+            if signal_status_update is not None:
+                signal_status_update.emit(status)
             
             # convolve the recent reconstruction with the kernel
             convolved_recent_reconstruction = cv2.filter2D(recent_reconstruction,
@@ -107,3 +108,19 @@ class Deconvolver:
         quad_distance = (x - center_index)**2 + (y - center_index)**2
         output_value = 1. / (2.*np.pi*pow(self.sigma,2)) * np.exp( - quad_distance / (2. * pow(self.sigma,2)))
         return output_value
+
+if __name__ == "__main__":
+    input_directory = "/run/media/bjoern/daten/Programming/Test_VerySharp/crop_enter/"
+    input_file = "out_3.png"
+    output_file = "deconvolved_3_gauss.png"
+
+    from os.path import join
+    input_filepath = join(input_directory, input_file)
+    output_filepath = join(input_directory, output_file)
+
+
+    image = cv2.imread(input_filepath).astype(np.float32)
+    deconvolver = Deconvolver()
+    result = deconvolver.deconvolveLucy(image)
+
+    cv2.imwrite(output_filepath, result)
