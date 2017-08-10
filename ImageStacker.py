@@ -34,12 +34,14 @@ class ImageStacker(QThread):
         QThread.__init__(self)
         self.image_paths = image_paths
         self.output_path = output_path
-        self.scale_factor = 2.
+        self.scale_factor = 3.
         self.continue_processing = [True]  # wrapper for passing per reference
         self.tile_size = 1024
         self.tile_margin = 256
         self.tiles = None
         self.bool_deconvolve = False
+
+        self.interpolation_upscale = cv2.INTER_LINEAR
         
         
     def __del__(self):
@@ -134,7 +136,7 @@ class ImageStacker(QThread):
         # get the image
         raw_image = CommonFunctions.preprocessImage(data["image"], 
                                                    self.scale_factor,
-                                                    interpolation=cv2.INTER_CUBIC)
+                                                    interpolation=self.interpolation_upscale)
         image_dimension = raw_image.shape
 
         # create output image as numpy array with upscaled image size
