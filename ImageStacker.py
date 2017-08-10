@@ -112,6 +112,9 @@ class ImageStacker(QThread):
 
         stacked_image_upscaled /= num_images
 
+        # fix negative values
+        stacked_image_upscaled[stacked_image_upscaled < 0] = 0.
+
         print ("deconvolve image")
         if self.continue_processing[0]:
             if self.bool_deconvolve:

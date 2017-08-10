@@ -124,8 +124,8 @@ class Deconvolver:
 
 if __name__ == "__main__":
     input_directory = "/run/media/bjoern/daten/Programming/Test_VerySharp/crop_draussen_1/bilder/"
-    input_file = "out_2_cubic.png"
-    output_file = "deconvolved_25.png"
+    input_file = "out_14s.png"
+    output_file = "deconvolved_14s.png"
     kernel_output_file = "kernel_25.png"
 
     from os.path import join
