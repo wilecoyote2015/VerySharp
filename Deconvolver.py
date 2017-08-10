@@ -30,7 +30,7 @@ class Deconvolver:
     def __init__(self):
         self.sigma = 1.5
         self.iterations = 40
-        self.kernel_size = 10
+        self.kernel_size = 9
         self.scale_factor = 2.
         
     ## Apply Richardson-Lucy deconvolution to the Image
@@ -104,7 +104,7 @@ class Deconvolver:
 
         return kernel
     
-    # gauss PSF for testing
+    # # gauss PSF for testing
     # def calculatePSF(self, x, y, center_index):
     #     quad_distance = (x - center_index)**2 + (y - center_index)**2
     #     output_value = 1. / (2.*np.pi*pow(self.sigma,2)) * np.exp( - quad_distance / (2. * pow(self.sigma,2)))
@@ -116,20 +116,22 @@ class Deconvolver:
         pixel_radius = pixel_size / 2.
 
         X = np.minimum(pixel_size, distance + pixel_radius)
-        Y = np.maximum(0., distance - pixel_radius)
+        Y = np.minimum(np.maximum(0., distance - pixel_radius), pixel_size)
         Z = np.maximum(0., pixel_radius - distance)
-
         result = X - Y + Z + (- X**2 + Y**2 - Z**2) / (2. * pixel_size)
+
         return result
 
 if __name__ == "__main__":
     input_directory = "/run/media/bjoern/daten/Programming/Test_VerySharp/crop_enter/"
-    input_file = "out_3.png"
-    output_file = "deconvolved_3_custom.png"
+    input_file = "out.png"
+    output_file = "deconvolved_2.png"
+    kernel_output_file = "kernel_2.png"
 
     from os.path import join
     input_filepath = join(input_directory, input_file)
     output_filepath = join(input_directory, output_file)
+    kernel_filepath = join(input_directory, kernel_output_file)
 
 
     image = cv2.imread(input_filepath).astype(np.float32)
@@ -137,3 +139,7 @@ if __name__ == "__main__":
     result = deconvolver.deconvolveLucy(image)
 
     cv2.imwrite(output_filepath, result)
+    kernel = deconvolver.calculateKernel()
+    kernel_max = 255 / np.amax(kernel)
+    kernel_brightened = kernel * kernel_max
+    cv2.imwrite(kernel_filepath, kernel_brightened)
