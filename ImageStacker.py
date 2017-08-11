@@ -187,7 +187,9 @@ class ImageStacker(QThread):
         
         # attention: max values are indices for slicing, so they are in fact
         # max + 1 due to python indexing!
-        for index_y in range(num_tiles_y):
+        # indexing of coordinates is matrix-like [y,x] top to bottom.
+        # tile from bottom to top to get meaningful content for alignment first, before the sky
+        for index_y in reversed(range(num_tiles_y)):
             for index_x in range(num_tiles_x):
                 
                 min_x_without_margins = index_x * self.tile_size
