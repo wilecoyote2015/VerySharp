@@ -96,11 +96,12 @@ class ImageAligner:
                 # rough inital alignment using feature detection
                 warp_matrix = cv2.estimateRigidTransform(reference_tile, image_tile, False)
                 
-                # if estimateRigidTransform has failed, create unity matrix
+                # if estimateRigidTransform has failed, use last matrix for the tile
                 if warp_matrix is None:
                     print ("WARNING: Initial alignment for Image ", index + 1, " failed!")
-                    warp_matrix = np.eye(2,3, dtype=np.float32)
-                
+                    dataset.appendTransformMatrix(index, previous_transform_matrix)
+                    continue
+
                 # convert warp matrix to float32 because findTransformECC needs this            
                 warp_matrix = warp_matrix.astype(np.float32)   
                 
@@ -129,7 +130,7 @@ class ImageAligner:
                 # fill the warp matrix into the dataset
                 dataset.appendTransformMatrix(index, transform_matrix)
                 
-                # if next tile fails, use this one instead
+                # if next tile will fail, it may fall back to this matrix
                 previous_transform_matrix = transform_matrix
             
         return dataset
