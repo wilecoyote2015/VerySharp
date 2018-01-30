@@ -106,11 +106,11 @@ class ImageAligner:
                 
                 # @todo: those two parameters can be set in config!
                 # Specify the number of iterations for ECC alignment.
-                number_of_iterations = 500;
+                number_of_iterations = 500
                  
                 # Specify the threshold of the increment
                 # in the correlation coefficient between two iterations
-                termination_eps = 1e-5;
+                termination_eps = 1e-5
                 
                 # Define termination criteria
                 criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT,

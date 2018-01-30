@@ -50,9 +50,7 @@ class ImageStacker(QThread):
         
     def abort(self):
         self.continue_processing[0] = False
-    
-    ## stack a set of Images by averaging
-    #  @param images list of astropy fits Objects 
+
     def stackImages(self):
         
         # build the image data object containing the hdulists
