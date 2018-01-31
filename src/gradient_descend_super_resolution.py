@@ -52,12 +52,6 @@ class GradientDescentBase:
             logging.info("Current values: {}".format(current_value))
             logging.info("Residual Error: {}".format(residual_error))
 
-
-            # adjust learning rate
-            # todo: make the adjustment configurable and pass it properly. self.learning rate is only the
-            # initial one and should not be altered!
-            # todo: can the initial learning rate be adjusted according to image size?
-            # todo: the thresholds must be configurable.
             if residual_error is not None:
                 if len(residual_errors) > 0:
                     last_residual_error = residual_errors["all"][-1]
@@ -116,30 +110,9 @@ class GradientDescentBase:
     def perform_optimization_step(self, current_value, current_iteration, **kwargs):
         pass
 
-    # todo: Denis 2015 beschreiben methoden zur schnellen berechnung der spatial variablen PSF.
-    # das sollte hier dann auch implementiert werden.
-
 
 class SuperResolution3D(GradientDescentBase):
-    # todo: The alignment is catastrophic!!!!
-    # a look at the alignment monitoring images reveals that there alignment itself does not work well.
-    # seems that we really need a better approach here!
-
-    # todo: transforming is done using the transform function of cv2 by now. But, especially for considering the
-    # necessity of accurate transposed transformation, maybe it is a good idea to really implement transformation via
-    # matrices. CV2 has transformation maps, which are mappings of coordinates. It should be easy to write a function
-    # that converts those to a real transformation matrix. It would start with flattening of the matrix with
-    # (important!) the flattening function that is used to convert an image to a vector.
-
-    # todo: multiprocessing
-
-    # todo: with every image, only the slice of the datacube that actually corresponds to the filter range of the image
-    # should be processed. This can save much processing power! The Datacube class now has a function to get
-    # a filter range slice.
-
-    # todo: use mask_valid_pixels of the images if provided, so that gradient is 0 where pixels are invalid
-    # will not be that easy due to scaling etc.? This must all be implemented in scaling and transforming things...
-    def __init__(self, learning_rate, prior, output_dir_monitoring=None,
+    def __init__(self, learning_rate, prior=None, output_dir_monitoring=None,
                  alternating_descend=False,
                  output_step=10,
                  decay_momentum=0.9,
@@ -211,7 +184,8 @@ class SuperResolution3D(GradientDescentBase):
             logging.info("Calculating log likelihood gradient for image {}".format(image.name))
             gradient += self.gradient_log_likelihood(image, current_value)
             # return gradient_rest
-        gradient += self.prior.gradient_log(current_value)
+        if self.prior is not None:
+            gradient += self.prior.gradient_log(current_value)
 
         return gradient
 
@@ -232,9 +206,6 @@ class SuperResolution3D(GradientDescentBase):
 
         # re-transform residuum by transforming with matrix of image forwards
         # this is equivalent to the transposed transform matrix in W in formula.
-        # todo: is this really equivalent? I don't think so!
-        # could it be sufficient to not scale the flux to make it right? Just a guess...
-
         residuum_scaled_to_estimate_size = residuum.transform(image.transform_matrix,
                                                                current_estimate.spatial_resolution["x"],
                                                                current_estimate.spatial_resolution["y"],
@@ -253,16 +224,16 @@ class SuperResolution3D(GradientDescentBase):
             errors[image.name] = - log_likelihood_image
 
             sum_log_likelihoods += log_likelihood_image
-        log_likelihood_prior = np.log(self.prior.prior_image(current_estimate))
-        errors["prior"] = - log_likelihood_prior
-        sum_log_likelihoods += log_likelihood_prior
+        if self.prior is not None:
+            log_likelihood_prior = np.log(self.prior.prior_image(current_estimate))
+            errors["prior"] = - log_likelihood_prior
+            sum_log_likelihoods += log_likelihood_prior
 
         errors["all"] = - sum_log_likelihoods
 
         return errors
 
     def log_likelihood_image(self, image, current_estimate):
-        # todo: calculate correct likelihood also if likelihood with variance is used!
         residuum = self.calculate_residuum(image, current_estimate)
 
         # fix undefined values
@@ -273,6 +244,7 @@ class SuperResolution3D(GradientDescentBase):
     def calculate_residuum(self, image, current_estimate):
         estimate_blurred = image.psf.convolve_image(current_estimate)
 
+        # transform to image space
         estimate_blurred_transformed = estimate_blurred.transform(image.transform_matrix,
                                                                image.resolution["x"],
                                                                image.resolution["y"],

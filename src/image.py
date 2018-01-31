@@ -52,6 +52,12 @@ class Image:
         else:
             return shape[2]
 
+    @property
+    def diagonal_resolution(self):
+        resolution = self.spatial_resolution
+
+        return np.sqrt(resolution['x'] ** 2 + resolution['y'] ** 2)
+
     def scale(self, scale_factor, interpolation='bicubic'):
         if interpolation == 'bicubic':
             interpolation_cv2 = cv2.INTER_CUBIC
