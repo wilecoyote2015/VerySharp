@@ -35,7 +35,7 @@ class Deconvolver:
     ## Apply Richardson-Lucy deconvolution to the Image
     #  @param image input image as numpy array
     #  @return deconvolved image as numpy array
-    def deconvolveLucy(self, image, continue_processing, signal_status_update):
+    def deconvolveLucy(self, image, continue_processing=(True,), signal_status_update=None):
         # create the kernel
         kernel = self.calculateKernel()
 
@@ -54,7 +54,10 @@ class Deconvolver:
                 
             percentage_finished = round(100. * float(i) / float(self.iterations))
             status = "deconvolving: " + str(percentage_finished) + "%"
-            signal_status_update.emit(status)
+            if signal_status_update is not None:
+                signal_status_update.emit(status)
+            else:
+                print(status)
             
             # convolve the recent reconstruction with the kernel
             convolved_recent_reconstruction = cv2.filter2D(recent_reconstruction,
