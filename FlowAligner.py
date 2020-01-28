@@ -119,7 +119,7 @@ class FlowAligner:
         reference_rgb_int = np.round((reference_rgb * 255)).astype(np.uint8)
 
         cv2.imwrite(f'flow_test/_Reference.png',
-                    np.round(cv2.cvtColor(reference_rgb, cv2.COLOR_RGB2BGR) * (2 ** 16)).astype(np.uint16))
+                    np.round(cv2.cvtColor(reference_rgb, cv2.COLOR_RGB2BGR) * (2 ** 16 - 1)).astype(np.uint16))
 
         logging.info('Getting flows')
         
