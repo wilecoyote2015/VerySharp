@@ -27,8 +27,8 @@ import cv2
 class Deconvolver:
     ## The constructor
     #  @param config the config file object
-    def __init__(self):
-        self.sigma = 1.1
+    def __init__(self, sigma=0.8):
+        self.sigma = sigma
         self.iterations = 40
         self.kernel_size = 5
         

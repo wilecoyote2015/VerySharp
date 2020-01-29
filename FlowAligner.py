@@ -24,14 +24,17 @@ class Dataset:
             # use_camera_wb=True,
             gamma=(1, 1),
             output_color=colorspace,
+            demosaic_algorithm=rawpy.DemosaicAlgorithm.AHD,
             output_bps=16,
-            half_size=True  # todo: testing
+            no_auto_bright=True,
+            no_auto_scale=True,
+            half_size=False  # todo: testing
         )
-    
-        result = (self.image_raw.postprocess(
-            params
-        ) / 2**16).astype(np.float32)
-        result = self.scale_image(result, scale_factor)
+
+        result = self.image_raw.postprocess(
+                        params
+                    ).astype(np.float32) / 2 ** 16
+        result = np.clip(self.scale_image(result, scale_factor), 0,1).astype(np.float32)
 
         return result
         
@@ -119,7 +122,7 @@ class FlowAligner:
         reference_rgb_int = np.round((reference_rgb * 255)).astype(np.uint8)
 
         cv2.imwrite(f'flow_test/_Reference.png',
-                    np.round(cv2.cvtColor(reference_rgb, cv2.COLOR_RGB2BGR) * (2 ** 16 - 1)).astype(np.uint16))
+                    cv2.cvtColor(reference_rgb_int, cv2.COLOR_RGB2BGR))
 
         logging.info('Getting flows')
         
@@ -201,7 +204,7 @@ class FlowAligner:
         stacked_normed = result / num_stacked_per_pixel
 
         if self.bool_deconvolve:
-            deconvolver = Deconvolver()
+            deconvolver = Deconvolver(sigma=0.8)
             stacked_image_upscaled_deconvolved = deconvolver.deconvolveLucy(stacked_normed)
         else:
             stacked_image_upscaled_deconvolved = stacked_normed
@@ -214,6 +217,14 @@ if __name__ == "__main__":
         '/run/media/bjoern/daten/Programming/VerySharp/flow_test/3/IMG_20200128_173214.dng',
         '/run/media/bjoern/daten/Programming/VerySharp/flow_test/3/IMG_20200128_173211.dng',
         '/run/media/bjoern/daten/Programming/VerySharp/flow_test/3/IMG_20200128_173210.dng',
+        '/run/media/bjoern/daten/Programming/VerySharp/flow_test/3/IMG_20200128_173209.dng',
+        '/run/media/bjoern/daten/Programming/VerySharp/flow_test/3/IMG_20200128_173208_1.dng',
+        '/run/media/bjoern/daten/Programming/VerySharp/flow_test/3/IMG_20200128_173208_2.dng',
+        '/run/media/bjoern/daten/Programming/VerySharp/flow_test/3/IMG_20200128_173208.dng',
+        '/run/media/bjoern/daten/Programming/VerySharp/flow_test/3/IMG_20200128_173207.dng',
+        # '/run/media/bjoern/daten/Programming/VerySharp/flow_test/3/IMG_20200128_173210.dng',
+        # '/run/media/bjoern/daten/Programming/VerySharp/flow_test/3/IMG_20200128_173210.dng',
+        # '/run/media/bjoern/daten/Programming/VerySharp/flow_test/3/IMG_20200128_173210.dng',
         # '/run/media/bjoern/daten/Programming/VerySharp/flow_test/3/DSCF0495.RAF',
         # '/run/media/bjoern/daten/Programming/VerySharp/flow_test/3/DSCF0496.RAF',
         # '/run/media/bjoern/daten/Programming/VerySharp/flow_test/3/DSCF0497.RAF',
@@ -245,8 +256,8 @@ if __name__ == "__main__":
     images = [Dataset(image_raw=rawpy.imread(path)) for path in paths_images[1:]]
     image_reference = Dataset(image_raw=rawpy.imread(paths_images[0]))
 
-    aligner = FlowAligner(bool_deconvolve=False, scale_factor=1.5,
-                          grid_step=10,
+    aligner = FlowAligner(bool_deconvolve=True, scale_factor=1.4,
+                          grid_step=30,
                           large_window_size=100)
 
     img = aligner.stack_images_rgb(image_reference, images)
